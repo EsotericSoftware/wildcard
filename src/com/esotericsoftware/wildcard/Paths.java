@@ -50,13 +50,13 @@ public class Paths implements Iterable<String> {
 	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
 	 *           represented by asterisks and question marks. If empty, null, or omitted then ** is assumed (collects all paths).<br>
 	 * <br>
-	 *           A single question mark (?) matches any single charater. Eg, something? collects any path that is named "something"
+	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named "something"
 	 *           plus any character.<br>
 	 * <br>
-	 *           A single asterisk (*) matches any charaters up to the next slash (/). Eg, *\*\something* collects any path that
+	 *           A single asterisk (*) matches any characters up to the next slash (/). Eg, *\*\something* collects any path that
 	 *           has two directories of any name, then a file or directory that starts with the name "something".<br>
 	 * <br>
-	 *           A double asterisk (**) matches any charaters. Eg, **\something\** collects any path that contains a directory
+	 *           A double asterisk (**) matches any characters. Eg, **\something\** collects any path that contains a directory
 	 *           named "something".<br>
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
