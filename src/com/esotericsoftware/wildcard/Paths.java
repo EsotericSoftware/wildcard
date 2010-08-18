@@ -50,8 +50,8 @@ public class Paths implements Iterable<String> {
 	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
 	 *           represented by asterisks and question marks. If empty, null, or omitted then ** is assumed (collects all paths).<br>
 	 * <br>
-	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named "something"
-	 *           plus any character.<br>
+	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named
+	 *           "something" plus any character.<br>
 	 * <br>
 	 *           A single asterisk (*) matches any characters up to the next slash (/). Eg, *\*\something* collects any path that
 	 *           has two directories of any name, then a file or directory that starts with the name "something".<br>
@@ -86,6 +86,14 @@ public class Paths implements Iterable<String> {
 		if (!rootDir.endsWith("/")) rootDir += '/';
 		for (String filePath : scanner.matches())
 			paths.add(new Path(rootDir, filePath));
+	}
+
+	public void glob (String dirPattern) {
+		String[] split = dirPattern.split("\\|");
+		String[] patterns = new String[split.length - 1];
+		for (int i = 1, n = split.length; i < n; i++)
+			patterns[i - 1] = split[i];
+		glob(split[0], patterns);
 	}
 
 	/**
