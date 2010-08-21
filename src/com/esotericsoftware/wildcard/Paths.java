@@ -33,22 +33,30 @@ public class Paths implements Iterable<String> {
 	 * Creates an empty Paths object.
 	 */
 	public Paths () {
-		super();
 	}
 
 	/**
 	 * Creates a Paths object and calls {@link #glob(String, String[])} with the specified arguments.
 	 */
 	public Paths (String dir, String... patterns) {
-		super();
+		glob(dir, patterns);
+	}
+
+	/**
+	 * Creates a Paths object and calls {@link #glob(String, List)} with the specified arguments.
+	 */
+	public Paths (String dir, List<String> patterns) {
 		glob(dir, patterns);
 	}
 
 	/**
 	 * Collects all files and directories in the specified directory matching the wildcard patterns.
-	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected.
+	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected. If null, "." is
+	 *           assumed.
 	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
-	 *           represented by asterisks and question marks. If empty, null, or omitted then ** is assumed (collects all paths).<br>
+	 *           represented by asterisks and question marks. If empty or omitted then the dir parameter is split on the "|"
+	 *           character, the first element is used as the directory and remaining are used as the patterns. If null, ** is
+	 *           assumed (collects all paths).<br>
 	 * <br>
 	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named
 	 *           "something" plus any character.<br>
@@ -64,6 +72,15 @@ public class Paths implements Iterable<String> {
 	 */
 	public void glob (String dir, String... patterns) {
 		if (dir == null) dir = ".";
+		if (patterns != null && patterns.length == 0) {
+			String[] split = dir.split("\\|");
+			if (split.length > 1) {
+				dir = split[0];
+				patterns = new String[split.length - 1];
+				for (int i = 1, n = split.length; i < n; i++)
+					patterns[i - 1] = split[i];
+			}
+		}
 		File dirFile = new File(dir);
 		if (!dirFile.exists()) return;
 
@@ -88,12 +105,12 @@ public class Paths implements Iterable<String> {
 			paths.add(new Path(rootDir, filePath));
 	}
 
-	public void glob (String dirPattern) {
-		String[] split = dirPattern.split("\\|");
-		String[] patterns = new String[split.length - 1];
-		for (int i = 1, n = split.length; i < n; i++)
-			patterns[i - 1] = split[i];
-		glob(split[0], patterns);
+	/**
+	 * Calls {@link #glob(String, String...)}.
+	 */
+	public void glob (String dir, List<String> patterns) {
+		if (patterns == null) throw new IllegalArgumentException("patterns cannot be null.");
+		glob(dir, patterns.toArray(new String[patterns.size()]));
 	}
 
 	/**
@@ -101,14 +118,24 @@ public class Paths implements Iterable<String> {
 	 * slower than {@link #glob(String, String...)} because every file and directory under the specified directory must be
 	 * inspected.
 	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected.
-	 * @param patterns The regular expression patterns of the paths to collect or exclude. If empty, null, or omitted then no paths
-	 *           are collected. <br>
+	 * @param patterns The regular expression patterns of the paths to collect or exclude. If empty or omitted then the dir
+	 *           parameter is split on the "|" character, the first element is used as the directory and remaining are used as the
+	 *           patterns. If null, ** is assumed (collects all paths).<br>
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
 	 *           patterns would select the paths.
 	 */
 	public void regex (String dir, String... patterns) {
 		if (dir == null) dir = ".";
+		if (patterns != null && patterns.length == 0) {
+			String[] split = dir.split("\\|");
+			if (split.length > 1) {
+				dir = split[0];
+				patterns = new String[split.length - 1];
+				for (int i = 1, n = split.length; i < n; i++)
+					patterns[i - 1] = split[i];
+			}
+		}
 		File dirFile = new File(dir);
 		if (!dirFile.exists()) return;
 
@@ -122,7 +149,7 @@ public class Paths implements Iterable<String> {
 					includes.add(pattern);
 			}
 		}
-		if (includes.isEmpty()) includes.add("**");
+		if (includes.isEmpty()) includes.add(".*");
 
 		RegexScanner scanner = new RegexScanner(dirFile, includes, excludes);
 		String rootDir = scanner.rootDir().getPath().replace('\\', '/');
@@ -194,6 +221,14 @@ public class Paths implements Iterable<String> {
 		}
 	}
 
+	public int count () {
+		return paths.size();
+	}
+
+	public boolean isEmpty () {
+		return paths.isEmpty();
+	}
+
 	/**
 	 * Returns the absolute paths delimited by the specified character.
 	 */
@@ -238,55 +273,62 @@ public class Paths implements Iterable<String> {
 	/**
 	 * Returns the paths as File objects.
 	 */
-	public File[] getFiles () {
+	public List<File> getFiles () {
 		return getFiles(paths);
 	}
 
-	private File[] getFiles (List<Path> paths) {
-		File[] files = new File[paths.size()];
+	private ArrayList<File> getFiles (List<Path> paths) {
+		ArrayList<File> files = new ArrayList(paths.size());
 		int i = 0;
 		for (Path path : paths)
-			files[i++] = path.file();
+			files.add(path.file());
 		return files;
 	}
 
 	/**
-	 * Returns the relative paths.
+	 * Returns the portion of the path after the root directory where the path was collected.
 	 */
-	public String[] getRelativePaths () {
-		String[] stringPaths = new String[paths.size()];
+	public List<String> getRelativePaths () {
+		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
 		for (Path path : paths)
-			stringPaths[i++] = path.name;
+			stringPaths.add(path.name);
 		return stringPaths;
 	}
 
 	/**
 	 * Returns the full paths.
 	 */
-	public String[] getPaths () {
-		String[] stringPaths = new String[paths.size()];
+	public List<String> getPaths () {
+		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
 		for (File file : getFiles())
-			stringPaths[i++] = file.getPath();
+			stringPaths.add(file.getPath());
 		return stringPaths;
 	}
 
 	/**
 	 * Returns the paths' filenames.
 	 */
-	public String[] getNames () {
-		String[] stringPaths = new String[paths.size()];
+	public List<String> getNames () {
+		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
 		for (File file : getFiles())
-			stringPaths[i++] = file.getName();
+			stringPaths.add(file.getName());
 		return stringPaths;
+	}
+
+	/**
+	 * Adds a single path to this Paths object.
+	 */
+	public void add (String dir, String name) {
+		paths.add(new Path(dir, name));
 	}
 
 	/**
 	 * Adds all paths from the specified Paths object to this Paths object.
 	 */
-	public void addAll (Paths paths) {
+	public void add (Paths paths) {
 		this.paths.addAll(paths.paths);
 	}
 
@@ -385,11 +427,13 @@ public class Paths implements Iterable<String> {
 	}
 
 	public static void main (String[] args) {
-		Paths paths = new Paths();
-		// paths.regex("C:\\Java\\ls\\website", "[^tz]*");
-		Paths.setDefaultGlobExcludes("**/.svn/**");
-		paths.glob("C:\\Java\\ls", "website/**", "!misc");
-		for (Path path : paths.paths)
-			System.out.println(path.file());
+		if (args.length == 0) {
+			System.out.println("Usage: dir [pattern] [, pattern ...]");
+			System.exit(0);
+		}
+		List<String> patterns = Arrays.asList(args);
+		patterns = patterns.subList(1, patterns.size());
+		for (String path : new Paths(args[0], patterns))
+			System.out.println(path);
 	}
 }
