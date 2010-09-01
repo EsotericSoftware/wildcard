@@ -249,6 +249,18 @@ public class Paths implements Iterable<String> {
 	}
 
 	/**
+	 * Returns a Paths object containing the paths that are files, as if each file were selected from its parent directory.
+	 */
+	public Paths flatten () {
+		Paths newPaths = new Paths();
+		for (Path path : paths) {
+			File file = path.file();
+			if (file.isFile()) newPaths.paths.add(new Path(file.getParent(), file.getName()));
+		}
+		return newPaths;
+	}
+
+	/**
 	 * Returns a Paths object containing the paths that are files.
 	 */
 	public Paths filesOnly () {
