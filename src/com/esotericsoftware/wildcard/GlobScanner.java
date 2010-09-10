@@ -1,6 +1,5 @@
+
 package com.esotericsoftware.wildcard;
-
-
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +84,8 @@ class GlobScanner {
 	}
 
 	private void scanDir (File dir, List<Pattern> includes) {
+		if (!dir.canRead()) return;
+
 		// See if patterns are specific enough to avoid scanning every file in the directory.
 		boolean scanAll = false;
 		for (Pattern include : includes) {
@@ -157,7 +158,7 @@ class GlobScanner {
 			pattern = pattern.replace('\\', '/');
 			pattern = pattern.replaceAll("\\*\\*[^/]", "**/*");
 			pattern = pattern.replaceAll("[^/]\\*\\*", "*/**");
-			/// pattern = pattern.toLowerCase();
+			// pattern = pattern.toLowerCase();
 			values = pattern.split("/");
 			value = values[0];
 		}
@@ -184,7 +185,7 @@ class GlobScanner {
 			int mp = 0;
 			while (i < fileName.length()) {
 				if (j < value.length() && value.charAt(j) == '*') {
-					if ((j++) >= value.length()) return true;
+					if (j++ >= value.length()) return true;
 					mp = j;
 					cp = i + 1;
 				} else if (j < value.length() && (value.charAt(j) == fileName.charAt(i) || value.charAt(j) == '?')) {
