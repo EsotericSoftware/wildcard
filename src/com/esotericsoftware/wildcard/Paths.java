@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -27,7 +28,7 @@ public class Paths implements Iterable<String> {
 
 	static private List<String> defaultGlobExcludes;
 
-	final List<Path> paths = new ArrayList<Path>(32);
+	final HashSet<Path> paths = new HashSet<Path>(32);
 
 	/**
 	 * Creates an empty Paths object.
@@ -286,7 +287,7 @@ public class Paths implements Iterable<String> {
 	 * Returns the paths as File objects.
 	 */
 	public List<File> getFiles () {
-		return getFiles(paths);
+		return getFiles(new ArrayList(paths));
 	}
 
 	private ArrayList<File> getFiles (List<Path> paths) {
@@ -401,6 +402,28 @@ public class Paths implements Iterable<String> {
 
 		public File file () {
 			return new File(dir, name);
+		}
+
+		public int hashCode () {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((dir == null) ? 0 : dir.hashCode());
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			return result;
+		}
+
+		public boolean equals (Object obj) {
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (getClass() != obj.getClass()) return false;
+			Path other = (Path)obj;
+			if (dir == null) {
+				if (other.dir != null) return false;
+			} else if (!dir.equals(other.dir)) return false;
+			if (name == null) {
+				if (other.name != null) return false;
+			} else if (!name.equals(other.name)) return false;
+			return true;
 		}
 	}
 
