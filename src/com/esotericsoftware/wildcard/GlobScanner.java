@@ -38,7 +38,8 @@ class GlobScanner {
 
 		if (!allExcludePatterns.isEmpty()) {
 			// For each file, see if any exclude patterns match.
-			outerLoop: //
+			outerLoop:
+			//
 			for (Iterator matchIter = matches.iterator(); matchIter.hasNext();) {
 				String filePath = (String)matchIter.next();
 				List<Pattern> excludePatterns = new ArrayList(allExcludePatterns);
@@ -132,7 +133,13 @@ class GlobScanner {
 		}
 
 		File file = new File(dir, fileName);
-		if (isFinalMatch) matches.add(file.getPath().substring(rootDir.getPath().length() + 1));
+		if (isFinalMatch) {
+			int length = rootDir.getPath().length();
+			if (length > 1)
+				matches.add(file.getPath().substring(length + 1));
+			else
+				matches.add(file.getPath());
+		}
 		if (!matchingIncludes.isEmpty() && file.isDirectory()) scanDir(file, matchingIncludes);
 
 		// Decrement patterns.
