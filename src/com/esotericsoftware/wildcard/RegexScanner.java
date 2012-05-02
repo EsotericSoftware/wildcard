@@ -1,6 +1,5 @@
+
 package com.esotericsoftware.wildcard;
-
-
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +47,9 @@ class RegexScanner {
 	private void scanDir (File dir) {
 		for (File file : dir.listFiles()) {
 			for (Pattern include : includePatterns) {
-				String filePath = file.getPath().substring(rootDir.getPath().length() + 1);
+				int length = rootDir.getPath().length();
+				if (!rootDir.getPath().endsWith(File.separator)) length = length + 1;
+				String filePath = file.getPath().substring(length);
 				if (include.matcher(filePath).matches()) {
 					matches.add(filePath);
 					break;

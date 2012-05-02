@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Collects filesystem paths using wildcards, preserving the directory structure. Copies, deletes, and zips paths.
- */
+/** Collects filesystem paths using wildcards, preserving the directory structure. Copies, deletes, and zips paths. */
 public class Paths implements Iterable<String> {
 	static private final Comparator<Path> LONGEST_TO_SHORTEST = new Comparator<Path>() {
 		public int compare (Path s1, Path s2) {
@@ -30,28 +28,21 @@ public class Paths implements Iterable<String> {
 
 	final HashSet<Path> paths = new HashSet<Path>(32);
 
-	/**
-	 * Creates an empty Paths object.
-	 */
+	/** Creates an empty Paths object. */
 	public Paths () {
 	}
 
-	/**
-	 * Creates a Paths object and calls {@link #glob(String, String[])} with the specified arguments.
-	 */
+	/** Creates a Paths object and calls {@link #glob(String, String[])} with the specified arguments. */
 	public Paths (String dir, String... patterns) {
 		glob(dir, patterns);
 	}
 
-	/**
-	 * Creates a Paths object and calls {@link #glob(String, List)} with the specified arguments.
-	 */
+	/** Creates a Paths object and calls {@link #glob(String, List)} with the specified arguments. */
 	public Paths (String dir, List<String> patterns) {
 		glob(dir, patterns);
 	}
 
-	/**
-	 * Collects all files and directories in the specified directory matching the wildcard patterns.
+	/** Collects all files and directories in the specified directory matching the wildcard patterns.
 	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected. If null, "." is
 	 *           assumed.
 	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
@@ -69,8 +60,7 @@ public class Paths implements Iterable<String> {
 	 *           named "something".<br>
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
-	 *           patterns would select the paths.
-	 */
+	 *           patterns would select the paths. */
 	public void glob (String dir, String... patterns) {
 		if (dir == null) dir = ".";
 		if (patterns != null && patterns.length == 0) {
@@ -106,16 +96,13 @@ public class Paths implements Iterable<String> {
 			paths.add(new Path(rootDir, filePath));
 	}
 
-	/**
-	 * Calls {@link #glob(String, String...)}.
-	 */
+	/** Calls {@link #glob(String, String...)}. */
 	public void glob (String dir, List<String> patterns) {
 		if (patterns == null) throw new IllegalArgumentException("patterns cannot be null.");
 		glob(dir, patterns.toArray(new String[patterns.size()]));
 	}
 
-	/**
-	 * Collects all files and directories in the specified directory matching the regular expression patterns. This method is much
+	/** Collects all files and directories in the specified directory matching the regular expression patterns. This method is much
 	 * slower than {@link #glob(String, String...)} because every file and directory under the specified directory must be
 	 * inspected.
 	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected.
@@ -124,8 +111,7 @@ public class Paths implements Iterable<String> {
 	 *           patterns. If null, ** is assumed (collects all paths).<br>
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
-	 *           patterns would select the paths.
-	 */
+	 *           patterns would select the paths. */
 	public void regex (String dir, String... patterns) {
 		if (dir == null) dir = ".";
 		if (patterns != null && patterns.length == 0) {
@@ -159,10 +145,8 @@ public class Paths implements Iterable<String> {
 			paths.add(new Path(rootDir, filePath));
 	}
 
-	/**
-	 * Copies the files and directories to the specified directory.
-	 * @return A paths object containing the paths of the new files.
-	 */
+	/** Copies the files and directories to the specified directory.
+	 * @return A paths object containing the paths of the new files. */
 	public Paths copyTo (String destDir) throws IOException {
 		Paths newPaths = new Paths();
 		for (Path path : paths) {
@@ -179,10 +163,8 @@ public class Paths implements Iterable<String> {
 		return newPaths;
 	}
 
-	/**
-	 * Deletes all the files, directories, and any files in the directories.
-	 * @return False if any file could not be deleted.
-	 */
+	/** Deletes all the files, directories, and any files in the directories.
+	 * @return False if any file could not be deleted. */
 	public boolean delete () {
 		boolean success = true;
 		List<Path> pathsCopy = new ArrayList<Path>(paths);
@@ -197,10 +179,8 @@ public class Paths implements Iterable<String> {
 		return success;
 	}
 
-	/**
-	 * Compresses the files and directories specified by the paths into a new zip file at the specified location. If there are no
-	 * paths or all the paths are directories, no zip file will be created.
-	 */
+	/** Compresses the files and directories specified by the paths into a new zip file at the specified location. If there are no
+	 * paths or all the paths are directories, no zip file will be created. */
 	public void zip (String destFile) throws IOException {
 		Paths zipPaths = filesOnly();
 		if (zipPaths.paths.isEmpty()) return;
@@ -230,9 +210,7 @@ public class Paths implements Iterable<String> {
 		return paths.isEmpty();
 	}
 
-	/**
-	 * Returns the absolute paths delimited by the specified character.
-	 */
+	/** Returns the absolute paths delimited by the specified character. */
 	public String toString (String delimiter) {
 		StringBuffer buffer = new StringBuffer(256);
 		for (String path : getPaths()) {
@@ -242,16 +220,12 @@ public class Paths implements Iterable<String> {
 		return buffer.toString();
 	}
 
-	/**
-	 * Returns the absolute paths delimited by commas.
-	 */
+	/** Returns the absolute paths delimited by commas. */
 	public String toString () {
 		return toString(", ");
 	}
 
-	/**
-	 * Returns a Paths object containing the paths that are files, as if each file were selected from its parent directory.
-	 */
+	/** Returns a Paths object containing the paths that are files, as if each file were selected from its parent directory. */
 	public Paths flatten () {
 		Paths newPaths = new Paths();
 		for (Path path : paths) {
@@ -261,9 +235,7 @@ public class Paths implements Iterable<String> {
 		return newPaths;
 	}
 
-	/**
-	 * Returns a Paths object containing the paths that are files.
-	 */
+	/** Returns a Paths object containing the paths that are files. */
 	public Paths filesOnly () {
 		Paths newPaths = new Paths();
 		for (Path path : paths) {
@@ -272,9 +244,7 @@ public class Paths implements Iterable<String> {
 		return newPaths;
 	}
 
-	/**
-	 * Returns a Paths object containing the paths that are directories.
-	 */
+	/** Returns a Paths object containing the paths that are directories. */
 	public Paths dirsOnly () {
 		Paths newPaths = new Paths();
 		for (Path path : paths) {
@@ -283,9 +253,7 @@ public class Paths implements Iterable<String> {
 		return newPaths;
 	}
 
-	/**
-	 * Returns the paths as File objects.
-	 */
+	/** Returns the paths as File objects. */
 	public List<File> getFiles () {
 		return getFiles(new ArrayList(paths));
 	}
@@ -298,9 +266,7 @@ public class Paths implements Iterable<String> {
 		return files;
 	}
 
-	/**
-	 * Returns the portion of the path after the root directory where the path was collected.
-	 */
+	/** Returns the portion of the path after the root directory where the path was collected. */
 	public List<String> getRelativePaths () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
@@ -309,9 +275,7 @@ public class Paths implements Iterable<String> {
 		return stringPaths;
 	}
 
-	/**
-	 * Returns the full paths.
-	 */
+	/** Returns the full paths. */
 	public List<String> getPaths () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
@@ -320,9 +284,7 @@ public class Paths implements Iterable<String> {
 		return stringPaths;
 	}
 
-	/**
-	 * Returns the paths' filenames.
-	 */
+	/** Returns the paths' filenames. */
 	public List<String> getNames () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
 		int i = 0;
@@ -331,23 +293,17 @@ public class Paths implements Iterable<String> {
 		return stringPaths;
 	}
 
-	/**
-	 * Adds a single path to this Paths object.
-	 */
+	/** Adds a single path to this Paths object. */
 	public void add (String dir, String name) {
 		paths.add(new Path(dir, name));
 	}
 
-	/**
-	 * Adds all paths from the specified Paths object to this Paths object.
-	 */
+	/** Adds all paths from the specified Paths object to this Paths object. */
 	public void add (Paths paths) {
 		this.paths.addAll(paths.paths);
 	}
 
-	/**
-	 * Iterates over the absolute paths. The iterator supports the remove method.
-	 */
+	/** Iterates over the absolute paths. The iterator supports the remove method. */
 	public Iterator<String> iterator () {
 		return new Iterator<String>() {
 			private Iterator<Path> iter = paths.iterator();
@@ -366,9 +322,7 @@ public class Paths implements Iterable<String> {
 		};
 	}
 
-	/**
-	 * Iterates over the paths as File objects. The iterator supports the remove method.
-	 */
+	/** Iterates over the paths as File objects. The iterator supports the remove method. */
 	public Iterator<File> fileIterator () {
 		return new Iterator<File>() {
 			private Iterator<Path> iter = paths.iterator();
@@ -427,16 +381,12 @@ public class Paths implements Iterable<String> {
 		}
 	}
 
-	/**
-	 * Sets the exclude patterns that will be used in addition to the excludes specified for all glob searches.
-	 */
+	/** Sets the exclude patterns that will be used in addition to the excludes specified for all glob searches. */
 	static public void setDefaultGlobExcludes (String... defaultGlobExcludes) {
 		Paths.defaultGlobExcludes = Arrays.asList(defaultGlobExcludes);
 	}
 
-	/**
-	 * Copies one file to another.
-	 */
+	/** Copies one file to another. */
 	static private void copyFile (File in, File out) throws IOException {
 		FileChannel sourceChannel = new FileInputStream(in).getChannel();
 		FileChannel destinationChannel = new FileOutputStream(out).getChannel();
@@ -445,9 +395,7 @@ public class Paths implements Iterable<String> {
 		destinationChannel.close();
 	}
 
-	/**
-	 * Deletes a directory and all files and directories it contains.
-	 */
+	/** Deletes a directory and all files and directories it contains. */
 	static private boolean deleteDirectory (File file) {
 		if (file.exists()) {
 			File[] files = file.listFiles();
@@ -461,14 +409,12 @@ public class Paths implements Iterable<String> {
 		return file.delete();
 	}
 
-	public static void main (String[] args) {
-		if (args.length == 0) {
-			System.out.println("Usage: dir [pattern] [, pattern ...]");
-			System.exit(0);
+	public static void main (String[] args) throws IOException {
+//		Paths paths = new Paths("C:/Dev/mir/Skin Images/other640", "**-small.png");
+//		paths.copyTo("C:/Dev/mir/Skin Images/other320-small");
+//		paths.delete();
+		for (String path : new Paths("C:/Dev/mir/Skin Images/other320-small", "**-small.png")) {
+			new File(path).renameTo(new File(path.replace("-small.png", ".png")));
 		}
-		List<String> patterns = Arrays.asList(args);
-		patterns = patterns.subList(1, patterns.size());
-		for (String path : new Paths(args[0], patterns))
-			System.out.println(path);
 	}
 }
