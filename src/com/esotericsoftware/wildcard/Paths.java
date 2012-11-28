@@ -61,7 +61,7 @@ public class Paths implements Iterable<String> {
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
 	 *           patterns would select the paths. */
-	public void glob (String dir, String... patterns) {
+	public Paths glob (String dir, String... patterns) {
 		if (dir == null) dir = ".";
 		if (patterns != null && patterns.length == 0) {
 			String[] split = dir.split("\\|");
@@ -73,7 +73,7 @@ public class Paths implements Iterable<String> {
 			}
 		}
 		File dirFile = new File(dir);
-		if (!dirFile.exists()) return;
+		if (!dirFile.exists()) return this;
 
 		List<String> includes = new ArrayList();
 		List<String> excludes = new ArrayList();
@@ -94,12 +94,14 @@ public class Paths implements Iterable<String> {
 		if (!rootDir.endsWith("/")) rootDir += '/';
 		for (String filePath : scanner.matches())
 			paths.add(new Path(rootDir, filePath));
+		return this;
 	}
 
 	/** Calls {@link #glob(String, String...)}. */
-	public void glob (String dir, List<String> patterns) {
+	public Paths glob (String dir, List<String> patterns) {
 		if (patterns == null) throw new IllegalArgumentException("patterns cannot be null.");
 		glob(dir, patterns.toArray(new String[patterns.size()]));
+		return this;
 	}
 
 	/** Collects all files and directories in the specified directory matching the regular expression patterns. This method is much
@@ -112,7 +114,7 @@ public class Paths implements Iterable<String> {
 	 * <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
 	 *           patterns would select the paths. */
-	public void regex (String dir, String... patterns) {
+	public Paths regex (String dir, String... patterns) {
 		if (dir == null) dir = ".";
 		if (patterns != null && patterns.length == 0) {
 			String[] split = dir.split("\\|");
@@ -124,7 +126,7 @@ public class Paths implements Iterable<String> {
 			}
 		}
 		File dirFile = new File(dir);
-		if (!dirFile.exists()) return;
+		if (!dirFile.exists()) return this;
 
 		List<String> includes = new ArrayList();
 		List<String> excludes = new ArrayList();
@@ -143,6 +145,7 @@ public class Paths implements Iterable<String> {
 		if (!rootDir.endsWith("/")) rootDir += '/';
 		for (String filePath : scanner.matches())
 			paths.add(new Path(rootDir, filePath));
+		return this;
 	}
 
 	/** Copies the files and directories to the specified directory.
@@ -294,7 +297,7 @@ public class Paths implements Iterable<String> {
 	}
 
 	/** Adds a single path to this Paths object. */
-	public Paths add (String fullPath) {
+	public Paths addFile (String fullPath) {
 		File file = new File(fullPath);
 		paths.add(new Path(file.getParent(), file.getName()));
 		return this;
