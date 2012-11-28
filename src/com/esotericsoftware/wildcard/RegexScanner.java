@@ -48,7 +48,7 @@ class RegexScanner {
 		for (File file : dir.listFiles()) {
 			for (Pattern include : includePatterns) {
 				int length = rootDir.getPath().length();
-				if (!rootDir.getPath().endsWith(File.separator)) length = length + 1;
+				if (!rootDir.getPath().endsWith(File.separator)) length++; // Lose starting slash.
 				String filePath = file.getPath().substring(length);
 				if (include.matcher(filePath).matches()) {
 					matches.add(filePath);

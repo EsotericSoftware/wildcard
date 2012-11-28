@@ -133,7 +133,11 @@ class GlobScanner {
 		}
 
 		File file = new File(dir, fileName);
-		if (isFinalMatch) matches.add(file.getPath().substring(rootDir.getPath().length()));
+		if (isFinalMatch) {
+			int length = rootDir.getPath().length();
+			if (!rootDir.getPath().endsWith(File.separator)) length++; // Lose starting slash.
+			matches.add(file.getPath().substring(length));
+		}
 		if (!matchingIncludes.isEmpty() && file.isDirectory()) scanDir(file, matchingIncludes);
 
 		// Decrement patterns.
