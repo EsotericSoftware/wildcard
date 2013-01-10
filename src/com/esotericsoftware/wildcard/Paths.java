@@ -357,6 +357,7 @@ public class Paths implements Iterable<String> {
 		public final String name;
 
 		public Path (String dir, String name) {
+			if (dir.length() > 0 && !dir.endsWith("/")) dir += "/";
 			this.dir = dir;
 			this.name = name;
 		}
