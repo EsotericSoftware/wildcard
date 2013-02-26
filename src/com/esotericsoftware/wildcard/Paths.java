@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -189,6 +190,7 @@ public class Paths implements Iterable<String> {
 		if (zipPaths.paths.isEmpty()) return;
 		byte[] buf = new byte[1024];
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFile));
+		out.setLevel(Deflater.BEST_COMPRESSION);
 		try {
 			for (Path path : zipPaths.paths) {
 				File file = path.file();
