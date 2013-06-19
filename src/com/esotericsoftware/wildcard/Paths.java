@@ -43,26 +43,7 @@ public class Paths implements Iterable<String> {
 		glob(dir, patterns);
 	}
 
-	/** Collects all files and directories in the specified directory matching the wildcard patterns.
-	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected. If null, "." is
-	 *           assumed.
-	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
-	 *           represented by asterisks and question marks. If empty or omitted then the dir parameter is split on the "|"
-	 *           character, the first element is used as the directory and remaining are used as the patterns. If null, ** is
-	 *           assumed (collects all paths).<br>
-	 * <br>
-	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named
-	 *           "something" plus any character.<br>
-	 * <br>
-	 *           A single asterisk (*) matches any characters up to the next slash (/). Eg, *\*\something* collects any path that
-	 *           has two directories of any name, then a file or directory that starts with the name "something".<br>
-	 * <br>
-	 *           A double asterisk (**) matches any characters. Eg, **\something\** collects any path that contains a directory
-	 *           named "something".<br>
-	 * <br>
-	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
-	 *           patterns would select the paths. */
-	public Paths glob (String dir, String... patterns) {
+	private Paths glob (String dir, boolean ignoreCase, String... patterns) {
 		if (dir == null) dir = ".";
 		if (patterns != null && patterns.length == 0) {
 			String[] split = dir.split("\\|");
@@ -90,7 +71,7 @@ public class Paths implements Iterable<String> {
 
 		if (defaultGlobExcludes != null) excludes.addAll(defaultGlobExcludes);
 
-		GlobScanner scanner = new GlobScanner(dirFile, includes, excludes);
+		GlobScanner scanner = new GlobScanner(dirFile, includes, excludes, ignoreCase);
 		String rootDir = scanner.rootDir().getPath().replace('\\', '/');
 		if (!rootDir.endsWith("/")) rootDir += '/';
 		for (String filePath : scanner.matches())
@@ -98,10 +79,48 @@ public class Paths implements Iterable<String> {
 		return this;
 	}
 
-	/** Calls {@link #glob(String, String...)}. */
+	/** Collects all files and directories in the specified directory matching the wildcard patterns.
+	 * @param dir The directory containing the paths to collect. If it does not exist, no paths are collected. If null, "." is
+	 *           assumed.
+	 * @param patterns The wildcard patterns of the paths to collect or exclude. Patterns may optionally contain wildcards
+	 *           represented by asterisks and question marks. If empty or omitted then the dir parameter is split on the "|"
+	 *           character, the first element is used as the directory and remaining are used as the patterns. If null, ** is
+	 *           assumed (collects all paths).<br>
+	 * <br>
+	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named
+	 *           "something" plus any character.<br>
+	 * <br>
+	 *           A single asterisk (*) matches any characters up to the next slash (/). Eg, *\*\something* collects any path that
+	 *           has two directories of any name, then a file or directory that starts with the name "something".<br>
+	 * <br>
+	 *           A double asterisk (**) matches any characters. Eg, **\something\** collects any path that contains a directory
+	 *           named "something".<br>
+	 * <br>
+	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
+	 *           patterns would select the paths. */
+	public Paths glob (String dir, String... patterns) {
+		return glob(dir, false, patterns);
+	}
+
+	/** Case insensitive glob.
+	 * @see #glob(String, String...) */
+	public Paths globIgnoreCase (String dir, String... patterns) {
+		return glob(dir, true, patterns);
+	}
+
+	/** Case sensitive glob.
+	 * @see #glob(String, String...) */
 	public Paths glob (String dir, List<String> patterns) {
 		if (patterns == null) throw new IllegalArgumentException("patterns cannot be null.");
-		glob(dir, patterns.toArray(new String[patterns.size()]));
+		glob(dir, false, patterns.toArray(new String[patterns.size()]));
+		return this;
+	}
+
+	/** Case insensitive glob.
+	 * @see #glob(String, String...) */
+	public Paths globIgnoreCase (String dir, List<String> patterns) {
+		if (patterns == null) throw new IllegalArgumentException("patterns cannot be null.");
+		glob(dir, true, patterns.toArray(new String[patterns.size()]));
 		return this;
 	}
 

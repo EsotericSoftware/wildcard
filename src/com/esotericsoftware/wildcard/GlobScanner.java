@@ -11,7 +11,7 @@ class GlobScanner {
 	private final File rootDir;
 	private final List<String> matches = new ArrayList(128);
 
-	public GlobScanner (File rootDir, List<String> includes, List<String> excludes) {
+	public GlobScanner (File rootDir, List<String> includes, List<String> excludes, boolean ignoreCase) {
 		if (rootDir == null) throw new IllegalArgumentException("rootDir cannot be null.");
 		if (!rootDir.exists()) throw new IllegalArgumentException("Directory does not exist: " + rootDir);
 		if (!rootDir.isDirectory()) throw new IllegalArgumentException("File must be a directory: " + rootDir);
@@ -28,11 +28,11 @@ class GlobScanner {
 		if (includes.isEmpty()) includes.add("**");
 		List<Pattern> includePatterns = new ArrayList(includes.size());
 		for (String include : includes)
-			includePatterns.add(new Pattern(include));
+			includePatterns.add(new Pattern(include, ignoreCase));
 
 		List<Pattern> allExcludePatterns = new ArrayList(excludes.size());
 		for (String exclude : excludes)
-			allExcludePatterns.add(new Pattern(exclude));
+			allExcludePatterns.add(new Pattern(exclude, ignoreCase));
 
 		scanDir(rootDir, includePatterns);
 
@@ -155,15 +155,19 @@ class GlobScanner {
 
 	static class Pattern {
 		String value;
+		boolean ignoreCase;
 		final String[] values;
 
 		private int index;
 
-		Pattern (String pattern) {
+		Pattern (String pattern, boolean ignoreCase) {
+			this.ignoreCase = ignoreCase;
+
 			pattern = pattern.replace('\\', '/');
 			pattern = pattern.replaceAll("\\*\\*[^/]", "**/*");
 			pattern = pattern.replaceAll("[^/]\\*\\*", "*/**");
-			// pattern = pattern.toLowerCase();
+			if (ignoreCase) pattern = pattern.toLowerCase();
+
 			values = pattern.split("/");
 			value = values[0];
 		}
@@ -171,7 +175,7 @@ class GlobScanner {
 		boolean matches (String fileName) {
 			if (value.equals("**")) return true;
 
-			// fileName = fileName.toLowerCase();
+			if (ignoreCase) fileName = fileName.toLowerCase();
 
 			// Shortcut if no wildcards.
 			if (value.indexOf('*') == -1 && value.indexOf('?') == -1) return fileName.equals(value);
@@ -270,7 +274,7 @@ class GlobScanner {
 		// excludes.add("**/*.php");
 		// excludes.add("website/**/doc**");
 		long start = System.nanoTime();
-		List<String> files = new GlobScanner(new File(".."), includes, excludes).matches();
+		List<String> files = new GlobScanner(new File(".."), includes, excludes, false).matches();
 		long end = System.nanoTime();
 		System.out.println(files.toString().replaceAll(", ", "\n").replaceAll("[\\[\\]]", ""));
 		System.out.println((end - start) / 1000000f);
