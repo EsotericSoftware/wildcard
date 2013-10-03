@@ -320,7 +320,8 @@ public class Paths implements Iterable<String> {
 	/** Adds a single path to this Paths object. */
 	public Paths addFile (String fullPath) {
 		File file = new File(fullPath);
-		paths.add(new Path(file.getParent(), file.getName()));
+		String parent = file.getParent();
+		paths.add(new Path(parent == null ? "" : parent, file.getName()));
 		return this;
 	}
 
@@ -440,14 +441,5 @@ public class Paths implements Iterable<String> {
 			}
 		}
 		return file.delete();
-	}
-
-	public static void main (String[] args) throws IOException {
-// Paths paths = new Paths("C:/Dev/mir/Skin Images/other640", "**-small.png");
-// paths.copyTo("C:/Dev/mir/Skin Images/other320-small");
-// paths.delete();
-		for (String path : new Paths("C:/Dev/mir/Skin Images/other320-small", "**-small.png")) {
-			new File(path).renameTo(new File(path.replace("-small.png", ".png")));
-		}
 	}
 }
