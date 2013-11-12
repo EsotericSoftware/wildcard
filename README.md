@@ -1,5 +1,7 @@
 ![](https://raw.github.com/wiki/EsotericSoftware/wildcard/images/logo.png)
 
+Please use the [WildCard discussion group](http://groups.google.com/group/wildcard-users) for support.
+
 Wildcard is a small Java library that performs efficient pattern matching of files and directories. Paths can be matched with wildcards or regular expressions. Matched files can be easily copied, deleted, zipped, etc.
 
 ## Glob matching
