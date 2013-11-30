@@ -5,3 +5,6 @@
 
 bin/
 target/
+
+# Eclipse directories
+.settings
