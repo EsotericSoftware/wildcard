@@ -284,7 +284,6 @@ public class Paths implements Iterable<String> {
 
 	private ArrayList<File> getFiles (List<Path> paths) {
 		ArrayList<File> files = new ArrayList(paths.size());
-		int i = 0;
 		for (Path path : paths)
 			files.add(path.file());
 		return files;
@@ -293,7 +292,6 @@ public class Paths implements Iterable<String> {
 	/** Returns the portion of the path after the root directory where the path was collected. */
 	public List<String> getRelativePaths () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
-		int i = 0;
 		for (Path path : paths)
 			stringPaths.add(path.name);
 		return stringPaths;
@@ -302,7 +300,6 @@ public class Paths implements Iterable<String> {
 	/** Returns the full paths. */
 	public List<String> getPaths () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
-		int i = 0;
 		for (File file : getFiles())
 			stringPaths.add(file.getPath());
 		return stringPaths;
@@ -311,7 +308,6 @@ public class Paths implements Iterable<String> {
 	/** Returns the paths' filenames. */
 	public List<String> getNames () {
 		ArrayList<String> stringPaths = new ArrayList(paths.size());
-		int i = 0;
 		for (File file : getFiles())
 			stringPaths.add(file.getName());
 		return stringPaths;
@@ -422,11 +418,15 @@ public class Paths implements Iterable<String> {
 
 	/** Copies one file to another. */
 	static private void copyFile (File in, File out) throws IOException {
-		FileChannel sourceChannel = new FileInputStream(in).getChannel();
-		FileChannel destinationChannel = new FileOutputStream(out).getChannel();
+		FileInputStream sourceStream = new FileInputStream(in);
+		FileOutputStream destinationStream = new FileOutputStream(out);
+		FileChannel sourceChannel = sourceStream.getChannel();
+		FileChannel destinationChannel = destinationStream.getChannel();
 		sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
 		sourceChannel.close();
+		sourceStream.close();
 		destinationChannel.close();
+		destinationStream.close();
 	}
 
 	/** Deletes a directory and all files and directories it contains. */
