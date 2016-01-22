@@ -15,9 +15,9 @@ The `glob` method collects files and directories using literal characters and op
 The first parameter defines the root directory of the search. Subsequent parameters are a variable number of search patterns. The following wildcards are supported in search patterns:
 
 <table>
-  <tr><td>`?`</td><td>Matches any single character. Eg, `something?` collects any path that is named "something" plus any character.</td></tr>
-  <tr><td>`*`</td><td>Matches any characters up to the next slash. Eg, `*/*/something*` collects any path that has two directories, then a file or directory that starts with the name "something".</td></tr>
-  <tr><td>`**`</td><td>Matches any characters. Eg, `**/something/**` collects any path that contains a directory named "something".</td></tr>
+  <tr><td>?</td><td>Matches any single character. Eg, "something?" collects any path that is named "something" plus any character.</td></tr>
+  <tr><td>*</td><td>Matches any characters up to the next slash. Eg, "*/*/something*" collects any path that has two directories, then a file or directory that starts with the name "something".</td></tr>
+  <tr><td>**</td><td>Matches any characters. Eg, "**/something/**" collects any path that contains a directory named "something".</td></tr>
   <tr><td>!</td><td>A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other patterns would select the paths.</td></tr>
 </table>
 
