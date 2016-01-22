@@ -55,7 +55,7 @@ If `glob` is passed only one parameter that is not pipe delimited, or if only ex
 The `glob` and `regex` methods can be called repeatedly to collect paths from different root directories. Internally, a `Paths` instance holds all the paths matched and remembers each root directory where the search was performed. This greatly simplifies many tasks. The `Paths` class has utility methods for manipulating the paths, eg:
 
     Paths paths = new Paths();
-    paths.glob("/some/directory", "**/images/*/image0?.*");
+    paths.glob("/some/directory", "**/*.jpg");
     paths.copyTo("/another/directory");
 
 This collects all JPG files in any directory under "/some/directory". It then copies those files to "/another/directory". Note that the directory structure under the root directory is preserved. Eg, if you had these files:
