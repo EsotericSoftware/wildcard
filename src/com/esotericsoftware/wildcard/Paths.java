@@ -61,6 +61,7 @@ public class Paths implements Iterable<String> {
 		List<String> excludes = new ArrayList();
 		if (patterns != null) {
 			for (String pattern : patterns) {
+				if (pattern.length() == 0) throw new IllegalArgumentException("Pattern may not be empty.");
 				if (pattern.charAt(0) == '!')
 					excludes.add(pattern.substring(1));
 				else
@@ -86,16 +87,16 @@ public class Paths implements Iterable<String> {
 	 *           represented by asterisks and question marks. If empty or omitted then the dir parameter is split on the "|"
 	 *           character, the first element is used as the directory and remaining are used as the patterns. If null, ** is
 	 *           assumed (collects all paths).<br>
-	 * <br>
+	 *           <br>
 	 *           A single question mark (?) matches any single character. Eg, something? collects any path that is named
 	 *           "something" plus any character.<br>
-	 * <br>
+	 *           <br>
 	 *           A single asterisk (*) matches any characters up to the next slash (/). Eg, *\*\something* collects any path that
 	 *           has two directories of any name, then a file or directory that starts with the name "something".<br>
-	 * <br>
+	 *           <br>
 	 *           A double asterisk (**) matches any characters. Eg, **\something\** collects any path that contains a directory
 	 *           named "something".<br>
-	 * <br>
+	 *           <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
 	 *           patterns would select the paths. */
 	public Paths glob (String dir, String... patterns) {
@@ -131,7 +132,7 @@ public class Paths implements Iterable<String> {
 	 * @param patterns The regular expression patterns of the paths to collect or exclude. If empty or omitted then the dir
 	 *           parameter is split on the "|" character, the first element is used as the directory and remaining are used as the
 	 *           patterns. If null, ** is assumed (collects all paths).<br>
-	 * <br>
+	 *           <br>
 	 *           A pattern starting with an exclamation point (!) causes paths matched by the pattern to be excluded, even if other
 	 *           patterns would select the paths. */
 	public Paths regex (String dir, String... patterns) {
@@ -152,6 +153,7 @@ public class Paths implements Iterable<String> {
 		List<String> excludes = new ArrayList();
 		if (patterns != null) {
 			for (String pattern : patterns) {
+				if (pattern.length() == 0) throw new IllegalArgumentException("Pattern may not be empty.");
 				if (pattern.charAt(0) == '!')
 					excludes.add(pattern.substring(1));
 				else
@@ -441,5 +443,9 @@ public class Paths implements Iterable<String> {
 			}
 		}
 		return file.delete();
+	}
+
+	static public void main (String[] args) throws Exception {
+		System.out.println(new Paths().glob("C:\\", "test**"));
 	}
 }
