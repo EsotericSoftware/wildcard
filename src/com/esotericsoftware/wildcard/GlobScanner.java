@@ -108,7 +108,9 @@ class GlobScanner {
 			}
 		} else {
 			// Scan every file.
-			for (String fileName : dir.list()) {
+			String[] fileNames = dir.list();
+			if (fileNames == null) return;
+			for (String fileName : fileNames) {
 				// Get all include patterns that match.
 				List<Pattern> matchingIncludes = new ArrayList(includes.size());
 				for (Pattern include : includes)
