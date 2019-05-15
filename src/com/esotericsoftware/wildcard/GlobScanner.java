@@ -175,6 +175,7 @@ class GlobScanner {
 		}
 
 		boolean matches (String fileName) {
+			String value = this.value;
 			if (value.equals("**")) return true;
 
 			if (ignoreCase) fileName = fileName.toLowerCase();
@@ -182,37 +183,44 @@ class GlobScanner {
 			// Shortcut if no wildcards.
 			if (value.indexOf('*') == -1 && value.indexOf('?') == -1) return fileName.equals(value);
 
-			int i = 0, j = 0;
-			while (i < fileName.length() && j < value.length() && value.charAt(j) != '*') {
-				if (value.charAt(j) != fileName.charAt(i) && value.charAt(j) != '?') return false;
+			int i = 0, j = 0, fileNameLength = fileName.length(), valueLength = value.length();
+			while (i < fileNameLength && j < valueLength) {
+				char c = value.charAt(j);
+				if (c == '*') break;
+				if (c != '?' && c != fileName.charAt(i)) return false;
 				i++;
 				j++;
 			}
 
 			// If reached end of pattern without finding a * wildcard, the match has to fail if not same length.
-			if (j == value.length()) return fileName.length() == value.length();
+			if (j == valueLength) return fileNameLength == valueLength;
 
 			int cp = 0;
 			int mp = 0;
-			while (i < fileName.length()) {
-				if (j < value.length() && value.charAt(j) == '*') {
-					if (j++ >= value.length()) return true;
-					mp = j;
-					cp = i + 1;
-				} else if (j < value.length() && (value.charAt(j) == fileName.charAt(i) || value.charAt(j) == '?')) {
-					j++;
-					i++;
-				} else {
-					j = mp;
-					i = cp++;
+			while (i < fileNameLength) {
+				if (j < valueLength) {
+					char c = value.charAt(j);
+					if (c == '*') {
+						if (j++ >= valueLength) return true;
+						mp = j;
+						cp = i + 1;
+						continue;
+					}
+					if (c == '?' || c == fileName.charAt(i)) {
+						j++;
+						i++;
+						continue;
+					}
 				}
+				j = mp;
+				i = cp++;
 			}
 
 			// Handle trailing asterisks.
-			while (j < value.length() && value.charAt(j) == '*')
+			while (j < valueLength && value.charAt(j) == '*')
 				j++;
 
-			return j >= value.length();
+			return j >= valueLength;
 		}
 
 		String nextValue () {
@@ -268,17 +276,14 @@ class GlobScanner {
 	}
 
 	public static void main (String[] args) {
-		// System.out.println(new Paths("C:\\Java\\ls", "**"));
 		List<String> includes = new ArrayList();
-		includes.add("website/in*");
-		// includes.add("**/lavaserver/**");
+		includes.add("src/**.java");
 		List<String> excludes = new ArrayList();
-		// excludes.add("**/*.php");
-		// excludes.add("website/**/doc**");
 		long start = System.nanoTime();
-		List<String> files = new GlobScanner(new File(".."), includes, excludes, false).matches();
+		List<String> files = new GlobScanner(new File("."), includes, excludes, false).matches();
 		long end = System.nanoTime();
 		System.out.println(files.toString().replaceAll(", ", "\n").replaceAll("[\\[\\]]", ""));
 		System.out.println((end - start) / 1000000f);
+		System.out.println(files);
 	}
 }
