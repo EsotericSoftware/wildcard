@@ -50,7 +50,7 @@ class GlobScanner {
 						if (exclude.values.length == 2 && exclude.values[0].equals("**")) {
 							exclude.incr();
 							String fileName = filePath.substring(filePath.lastIndexOf(File.separatorChar) + 1);
-							if (exclude.matches(fileName)) {
+							if (exclude.matchesFile(fileName)) {
 								matchIter.remove();
 								continue outerLoop;
 							}
@@ -62,7 +62,7 @@ class GlobScanner {
 					for (String fileName : fileNames) {
 						for (Iterator excludeIter = excludePatterns.iterator(); excludeIter.hasNext();) {
 							Pattern exclude = (Pattern)excludeIter.next();
-							if (!exclude.matches(fileName)) {
+							if (!exclude.matchesFile(fileName)) {
 								excludeIter.remove();
 								continue;
 							}
@@ -112,7 +112,7 @@ class GlobScanner {
 				// Get all include patterns that match.
 				List<Pattern> matchingIncludes = new ArrayList(includes.size());
 				for (Pattern include : includes)
-					if (include.matches(fileName)) matchingIncludes.add(include);
+					if (include.matchesFile(fileName)) matchingIncludes.add(include);
 				if (matchingIncludes.isEmpty()) continue;
 				process(dir, fileName, matchingIncludes);
 			}
@@ -164,15 +164,27 @@ class GlobScanner {
 			this.ignoreCase = ignoreCase;
 
 			pattern = pattern.replace('\\', '/');
-			pattern = pattern.replaceAll("\\*\\*[^/]", "**/*");
-			pattern = pattern.replaceAll("[^/]\\*\\*", "*/**");
+			pattern = pattern.replaceAll("\\*\\*(?=[^/])", "**/*");
+			pattern = pattern.replaceAll("(?<=[^/])\\*\\*", "*/**");
 			if (ignoreCase) pattern = pattern.toLowerCase();
 
 			values = pattern.split("/");
 			value = values[0];
 		}
 
-		boolean matches (String fileName) {
+		boolean matchesPath (String path) {
+			reset();
+			String[] files = path.split("[\\\\/]");
+			for (int i = 0, n = files.length; i < n; i++) {
+				String file = files[i];
+				if (i > 0 && isExhausted()) return false;
+				if (!matchesFile(file)) return false;
+				if (!incr(file) && isExhausted()) return true;
+			}
+			return wasFinalMatch();
+		}
+
+		boolean matchesFile (String fileName) {
 			if (value.equals("**")) return true;
 
 			if (ignoreCase) fileName = fileName.toLowerCase();
@@ -222,7 +234,7 @@ class GlobScanner {
 			if (value.equals("**")) {
 				if (index == values.length - 1) return false;
 				incr();
-				if (matches(fileName))
+				if (matchesFile(fileName))
 					incr();
 				else {
 					decr();
