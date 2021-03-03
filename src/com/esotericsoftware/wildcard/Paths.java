@@ -50,8 +50,7 @@ public class Paths implements Iterable<String> {
 			if (split.length > 1) {
 				dir = split[0];
 				patterns = new String[split.length - 1];
-				for (int i = 1, n = split.length; i < n; i++)
-					patterns[i - 1] = split[i];
+				System.arraycopy(split, 1, patterns, 0, split.length - 1);
 			}
 		}
 		File dirFile = new File(dir);
@@ -142,8 +141,7 @@ public class Paths implements Iterable<String> {
 			if (split.length > 1) {
 				dir = split[0];
 				patterns = new String[split.length - 1];
-				for (int i = 1, n = split.length; i < n; i++)
-					patterns[i - 1] = split[i];
+				System.arraycopy(split, 1, patterns, 0, split.length - 1);
 			}
 		}
 		File dirFile = new File(dir);
@@ -217,9 +215,9 @@ public class Paths implements Iterable<String> {
 				File file = path.file();
 				out.putNextEntry(new ZipEntry(path.name.replace('\\', '/')));
 				FileInputStream in = new FileInputStream(file);
-				int len;
-				while ((len = in.read(buf)) > 0)
-					out.write(buf, 0, len);
+				int bytesRead;
+				while ((bytesRead = in.read(buf)) > 0)
+					out.write(buf, 0, bytesRead);
 				in.close();
 				out.closeEntry();
 			}
@@ -264,18 +262,16 @@ public class Paths implements Iterable<String> {
 	/** Returns a Paths object containing the paths that are files. */
 	public Paths filesOnly () {
 		Paths newPaths = new Paths();
-		for (Path path : paths) {
+		for (Path path : paths)
 			if (path.file().isFile()) newPaths.paths.add(path);
-		}
 		return newPaths;
 	}
 
 	/** Returns a Paths object containing the paths that are directories. */
 	public Paths dirsOnly () {
 		Paths newPaths = new Paths();
-		for (Path path : paths) {
+		for (Path path : paths)
 			if (path.file().isDirectory()) newPaths.paths.add(path);
-		}
 		return newPaths;
 	}
 
@@ -446,6 +442,6 @@ public class Paths implements Iterable<String> {
 	}
 
 	static public void main (String[] args) throws Exception {
-		System.out.println(new Paths().glob("C:\\", "test**"));
+		System.out.println(new Paths().glob("C:\\|test**|meow"));
 	}
 }
